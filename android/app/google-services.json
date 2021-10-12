@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "82421458700",
+    "project_id": "project-lapang-991ef",
+    "storage_bucket": "project-lapang-991ef.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:82421458700:android:44236a384bfca8d75ecb29",
+        "android_client_info": {
+          "package_name": "com.example.project_lapang"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "82421458700-sejrkj5ufmp0l2p08nogjmgc9nrj96bg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4ibv4XGsHqbXRiXFO9piwsgpESf-pSTQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "82421458700-sejrkj5ufmp0l2p08nogjmgc9nrj96bg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
