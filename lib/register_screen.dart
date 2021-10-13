@@ -446,7 +446,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     var isValidNik = false;
     var isValidNomor = false;
-    var nomor = _nomorController.text.trim();
+    var nomor = '+62${_nomorController.text.trim()}';
     var nik = _nikController.text.trim();
 
     await _firestore
@@ -487,7 +487,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         isOTPScreen = true;
       });
       debugPrint('Test 1');
-      var phoneNumber = '+62 ${_nomorController.text.toString()}';
+      var phoneNumber = '+62${_nomorController.text.toString()}';
       debugPrint('Test 2');
       var verifikasiNomorTelepon = _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -506,7 +506,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'nik': _nikController.text.trim(),
                               'nama': _namaController.text.trim(),
                               'domisili': _domisiliController.text.trim(),
-                              'nomor_hp': '+62 ${_nomorController.text.trim()}',
+                              'nomor_hp': '+62${_nomorController.text.trim()}',
                               'kelas': 'umum',
                             }, SetOptions(merge: true))
                             .then((value) => {
