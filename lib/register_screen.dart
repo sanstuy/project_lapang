@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pinput/pin_put/pin_put.dart';
 import 'package:project_lapang/home.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -18,7 +19,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _formKeyOTP = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _nikController = TextEditingController();
   final TextEditingController _namaController = TextEditingController();
@@ -26,8 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nomorController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
 
-  var isLoading = false;
-  var isResend = false;
   var isRegister = true;
   var isOTPScreen = false;
   var verificationCode = '';
@@ -202,15 +200,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        if (!isLoading) {
-                          if (_formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Processing Data')));
-                            setState(() {
-                              signUp();
-                            });
-                          }
+                        if (_formKey.currentState!.validate()) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Processing Data')));
+                          setState(() {
+                            signUp();
+                          });
                         }
                       },
                       child: const Text("Daftar"),
@@ -228,222 +223,85 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget returnOTPScreen() {
+    final _pinPutFocusNode = FocusNode();
+    final _pinPutController = TextEditingController();
+    final BoxDecoration pinPutDecoration = BoxDecoration(
+      color: const Color.fromRGBO(43, 46, 66, 1),
+      borderRadius: BorderRadius.circular(10.0),
+      border: Border.all(
+        color: const Color.fromRGBO(126, 203, 224, 1),
+      ),
+    );
     return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('OTP Screen'),
-        ),
-        body: ListView(children: [
-          Form(
-            key: _formKeyOTP,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 10.0),
-                        child: Text(
-                            !isLoading
-                                ? "Enter OTP from SMS"
-                                : "Sending OTP code SMS",
-                            textAlign: TextAlign.center))),
-                !isLoading
-                    ? Container(
-                        child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 10.0),
-                        child: TextFormField(
-                          enabled: !isLoading,
-                          controller: otpController,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          initialValue: null,
-                          autofocus: true,
-                          decoration: const InputDecoration(
-                              labelText: 'OTP',
-                              labelStyle: TextStyle(color: Colors.black)),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter OTP';
-                            }
-                          },
-                        ),
-                      ))
-                    : Container(),
-                !isLoading
-                    ? Container(
-                        margin: const EdgeInsets.only(top: 40, bottom: 5),
-                        child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                if (_formKeyOTP.currentState!.validate()) {
-                                  // If the form is valid, we want to show a loading Snackbar
-                                  // If the form is valid, we want to do firebase signup...
-                                  setState(() {
-                                    isResend = false;
-                                    isLoading = true;
-                                  });
-                                  try {
-                                    await _auth
-                                        .signInWithCredential(
-                                            PhoneAuthProvider.credential(
-                                                verificationId:
-                                                    verificationCode,
-                                                smsCode: otpController.text
-                                                    .toString()))
-                                        .then((dynamic user) async => {
-                                              //sign in was success
-                                              if (user != null)
-                                                {
-                                                  //store registration details in firestore database
-                                                  await _firestore
-                                                      .collection('users')
-                                                      .doc(_auth
-                                                          .currentUser!.uid)
-                                                      .set(
-                                                          {
-                                                        'nik': _nikController
-                                                            .text
-                                                            .trim(),
-                                                        'nama': _namaController
-                                                            .text
-                                                            .trim(),
-                                                        'domisili':
-                                                            _domisiliController
-                                                                .text
-                                                                .trim(),
-                                                        'nomor_hp':
-                                                            _nomorController
-                                                                .text
-                                                                .trim(),
-                                                        'kelas': 'umum',
-                                                      },
-                                                          SetOptions(
-                                                              merge:
-                                                                  true)).then(
-                                                          (value) => {
-                                                                //then move to authorised area
-                                                                setState(() {
-                                                                  isLoading =
-                                                                      false;
-                                                                  isResend =
-                                                                      false;
-                                                                })
-                                                              }),
-
-                                                  setState(() {
-                                                    isLoading = false;
-                                                    isResend = false;
-                                                  }),
-                                                  Navigator.pushAndRemoveUntil(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (BuildContext
-                                                              context) =>
-                                                          const Home(),
-                                                    ),
-                                                    (route) => false,
-                                                  )
-                                                }
-                                            })
-                                        // ignore: invalid_return_type_for_catch_error
-                                        .catchError((error) => {
-                                              setState(() {
-                                                isLoading = false;
-                                                isResend = true;
-                                              }),
-                                            });
-                                    setState(() {
-                                      isLoading = true;
-                                    });
-                                  } catch (e) {
-                                    setState(() {
-                                      isLoading = false;
-                                    });
-                                  }
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 15.0,
-                                  horizontal: 15.0,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const <Widget>[
-                                    Expanded(
-                                      child: Text(
-                                        "Submit",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )))
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                CircularProgressIndicator(
-                                  backgroundColor:
-                                      Theme.of(context).primaryColor,
-                                )
-                              ].where((dynamic c) => c != null).toList(),
-                            )
-                          ]),
-                isResend
-                    ? Container(
-                        margin: const EdgeInsets.only(top: 40, bottom: 5),
-                        child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                setState(() {
-                                  isResend = false;
-                                  isLoading = true;
-                                });
-                                await signUp();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 15.0,
-                                  horizontal: 15.0,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const <Widget>[
-                                    Expanded(
-                                      child: Text(
-                                        "Resend Code",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )))
-                    : Column()
-              ],
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: const Text('OTP Verification'),
+      ),
+      body: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 40),
+            child: Center(
+              child: Text(
+                'Verify +62${_nomorController.text.trim()}',
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: PinPut(
+              fieldsCount: 6,
+              withCursor: true,
+              textStyle: const TextStyle(fontSize: 25.0, color: Colors.white),
+              eachFieldWidth: 40.0,
+              eachFieldHeight: 55.0,
+              onSubmit: (String pin) async {
+                try {
+                  await FirebaseAuth.instance
+                      .signInWithCredential(PhoneAuthProvider.credential(
+                          verificationId: verificationCode, smsCode: pin))
+                      .then((value) async {
+                    if (value.user != null) {
+                      await _firestore
+                          .collection('users')
+                          .doc(_auth.currentUser!.uid)
+                          .set({
+                        'nik': _nikController.text.trim(),
+                        'nama': _namaController.text.trim(),
+                        'domisili': _domisiliController.text.trim(),
+                        'nomor_hp': '+62${_nomorController.text.trim()}',
+                        'kelas': 'umum',
+                      }, SetOptions(merge: true)).then((value) => {
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => const Home()),
+                                    (route) => false)
+                              });
+                    }
+                  });
+                } catch (e) {
+                  FocusScope.of(context).unfocus();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Kode OTP salah')));
+                }
+              },
+              focusNode: _pinPutFocusNode,
+              controller: _pinPutController,
+              submittedFieldDecoration: pinPutDecoration,
+              selectedFieldDecoration: pinPutDecoration,
+              followingFieldDecoration: pinPutDecoration,
+              pinAnimationType: PinAnimationType.fade,
             ),
           )
-        ]));
+        ],
+      ),
+    );
   }
 
   Future signUp() async {
-    setState(() {
-      isLoading = true;
-    });
-
     var isValidNik = false;
     var isValidNomor = false;
     var nomor = '+62${_nomorController.text.trim()}';
@@ -456,7 +314,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         .then((result) {
       if (result.docs.isNotEmpty) {
         isValidNik = true;
-        isLoading = false;
       }
     });
 
@@ -467,7 +324,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         .then((result) {
       if (result.docs.isNotEmpty) {
         isValidNomor = true;
-        isLoading = false;
       }
     });
 
@@ -512,7 +368,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             .then((value) => {
                                   //then move to authorised area
                                   setState(() {
-                                    isLoading = false;
                                     isRegister = false;
                                     isOTPScreen = false;
 
@@ -537,21 +392,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         },
         verificationFailed: (FirebaseAuthException error) {
           debugPrint('Test 5 ${error.message}');
-          setState(() {
-            isLoading = false;
-          });
         },
         codeSent: (verificationId, [forceResendingToken]) {
           debugPrint('Test 6');
           setState(() {
-            isLoading = false;
             verificationCode = verificationId;
           });
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           debugPrint('Test 7');
           setState(() {
-            isLoading = false;
             verificationCode = verificationId;
           });
         },
