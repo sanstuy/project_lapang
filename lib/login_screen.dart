@@ -30,11 +30,20 @@ class _LoginScreenState extends State<LoginScreen> {
     ),
   );
 
-  var isLoading = false;
-  var isResend = false;
   var isLogin = true;
   var isOTPScreen = false;
   var verificationCode = '';
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _nomorController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       setState(() {
                         login();
                       });
-                      // Navigator.of(context).push(MaterialPageRoute(
-                      //     builder: (context) => OTPScreen(_nomorController.text)));
                     },
                     child: const Text("Login"),
                     style: ElevatedButton.styleFrom(
