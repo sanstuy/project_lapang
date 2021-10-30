@@ -15,7 +15,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   CollectionReference laporan =
-      FirebaseFirestore.instance.collection('Laporan');
+      FirebaseFirestore.instance.collection('laporan');
   CollectionReference user = FirebaseFirestore.instance.collection('users');
 
   late String domisili;
@@ -79,12 +79,17 @@ class _HomeState extends State<Home> {
                             laporan.where('uid', isEqualTo: uid).snapshots(),
                         //Build context dan snapshot yang telah dibuat dari stream
                         builder: (_, snapshot) {
-                          if (snapshot.hasData) {
-                            return Column(
-                                children: snapshot.data!.docs
-                                    .map((e) =>
-                                        RiwayatLaporan(e['laporan'], e['uid']))
-                                    .toList());
+                          if (snapshot.connectionState ==
+                              ConnectionState.active) {
+                            if (snapshot.hasData) {
+                              return Column(
+                                  children: snapshot.data!.docs
+                                      .map((e) => RiwayatLaporan(
+                                          e['laporan'], e['uid']))
+                                      .toList());
+                            } else {
+                              return const Text('Loading');
+                            }
                           } else {
                             return const Text('Loading');
                           }
@@ -94,7 +99,7 @@ class _HomeState extends State<Home> {
               }
 
               //Kembalikan CircularProgressIndicator untuk dibuild jika koneksi belum selesai.
-              return (const CircularProgressIndicator());
+              return const Center(child: (CircularProgressIndicator()));
             }));
   }
 
