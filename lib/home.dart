@@ -75,8 +75,9 @@ class _HomeState extends State<Home> {
                         vertical: 10.0, horizontal: 20.0),
                     child: StreamBuilder<QuerySnapshot>(
                         //Buat snapshot untuk stream.
-                        stream:
-                            laporan.where('uid', isEqualTo: uid).snapshots(),
+                        stream: laporan
+                            .orderBy('tanggal_laporan', descending: true).where('uid', isEqualTo: uid)
+                            .snapshots(),
                         //Build context dan snapshot yang telah dibuat dari stream
                         builder: (_, snapshot) {
                           if (snapshot.connectionState ==
@@ -85,10 +86,14 @@ class _HomeState extends State<Home> {
                               return Column(
                                   children: snapshot.data!.docs
                                       .map((e) => RiwayatLaporan(
-                                          e['laporan'], e['uid']))
+                                            e['judul_laporan'],
+                                            e['laporan'],
+                                            e['uid'],
+                                            e['tanggal_laporan'],
+                                          ))
                                       .toList());
                             } else {
-                              return const Text('Loading');
+                              return const Text('NO DATA');
                             }
                           } else {
                             return const Text('Loading');
