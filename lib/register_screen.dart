@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_unnecessary_containers
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -273,6 +271,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         'domisili': _domisiliController.text.trim(),
                         'nomor_hp': '+62${_nomorController.text.trim()}',
                         'kelas': 'umum',
+                        'uid': value.user!.uid,
                       }, SetOptions(merge: true)).then((value) => {
                                 Navigator.pushAndRemoveUntil(
                                     context,
@@ -364,6 +363,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'domisili': _domisiliController.text.trim(),
                               'nomor_hp': '+62${_nomorController.text.trim()}',
                               'kelas': 'umum',
+                              'uid': user!.uid,
                             }, SetOptions(merge: true))
                             .then((value) => {
                                   //then move to authorised area
