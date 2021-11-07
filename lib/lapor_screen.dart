@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 
-// ignore: must_be_immutable
 class LaporScreen extends StatefulWidget {
   final String uid;
 
@@ -21,6 +20,7 @@ class _LaporScreenState extends State<LaporScreen> {
   final CollectionReference laporan =
       FirebaseFirestore.instance.collection('laporan');
   final FirebaseStorage storage = FirebaseStorage.instance;
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _laporanController = TextEditingController();
   final TextEditingController _judulLaporanController = TextEditingController();
 
@@ -37,52 +37,68 @@ class _LaporScreenState extends State<LaporScreen> {
           margin: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.06,
               vertical: MediaQuery.of(context).size.height * 0.03),
-          child: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.height * 0.03),
-                child: TextField(
-                  controller: _judulLaporanController,
-                  maxLines: 1,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Judul Aduan',
-                    // contentPadding: EdgeInsets.symmetric(vertical: 15.0)
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.height * 0.03),
-                child: TextField(
-                  controller: _laporanController,
-                  maxLines: 3,
-                  textAlign: TextAlign.start,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Isi Aduan',
-                    labelStyle: TextStyle(fontSize: 30.0),
-                    // contentPadding: EdgeInsets.symmetric(vertical: 30.0)
-                  ),
-                ),
-              ),
-              imagePicker(context),
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height * 0.05),
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.1,
-                child: ElevatedButton(
-                    onPressed: () {
-                      // uploadImageToFirebase(context);
-                      addLaporan(context);
+          child: Form(
+            key: _formKey,
+            child: Column(
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).size.height * 0.03),
+                  child: TextFormField(
+                    controller: _judulLaporanController,
+                    maxLines: 1,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Judul Aduan',
+                    ),
+                    validator: (String? value) {
+                      if (value!.isEmpty) {
+                        return 'NIK Tidak boleh kosong';
+                      }
+                      return null;
                     },
-                    child:
-                        const Text('Adukan', style: TextStyle(fontSize: 20))),
-              )
-            ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).size.height * 0.03),
+                  child: TextFormField(
+                    controller: _laporanController,
+                    maxLines: 3,
+                    textAlign: TextAlign.start,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Isi Aduan',
+                      labelStyle: TextStyle(fontSize: 30.0),
+                    ),
+                    validator: (String? value) {
+                      if (value!.isEmpty) {
+                        return 'Aduan tidak boleh kosong!';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                imagePicker(context),
+                Container(
+                  margin: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.05),
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            addLaporan(context);
+                          });
+                        }
+                      },
+                      child:
+                          const Text('Adukan', style: TextStyle(fontSize: 20))),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -132,7 +148,7 @@ class _LaporScreenState extends State<LaporScreen> {
         this.image = imageTemporary;
       });
     } on PlatformException catch (e) {
-      print('Failed to pick image: $e');
+      ScaffoldMessenger.of(this.context).showSnackBar(SnackBar(content: Text('Gagal mengambil gambar $e')));
     }
   }
 
@@ -147,20 +163,28 @@ class _LaporScreenState extends State<LaporScreen> {
   }
 
   Future addLaporan(BuildContext context) async {
+    DocumentReference docRefence = laporan.doc();
     DateTime _tanggalLaporan = DateTime.now();
-    String fileName = basename(image!.path);
-    laporan.add({
-      'judul_laporan': _judulLaporanController.text.trim(),
-      'laporan': _laporanController.text.trim(),
-      'tanggal_laporan': _tanggalLaporan,
-      'uid': widget.uid,
-      'image': fileName,
-    }).then((value) => uploadImageToFirebase(context).then((value) {
-          return ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Laporan Berhasil diadukan.'),
-          ));
-        }));
-    _laporanController.text = '';
-    Navigator.pop(context);
+
+    if (image != null) {
+      var fileName = basename(image!.path);
+      docRefence.set({
+        'judul_laporan': _judulLaporanController.text.trim(),
+        'laporan': _laporanController.text.trim(),
+        'tanggal_laporan': _tanggalLaporan,
+        'uid': widget.uid,
+        'image': fileName,
+        'laporanId': docRefence.id,
+      }).then((value) => uploadImageToFirebase(context).then((value) {
+            return ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Laporan Berhasil diadukan.'),
+            ));
+          }));
+      _laporanController.text = '';
+      Navigator.pop(context);
+    } else {
+      return ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Gambar Harus Diisi Sebagai Lampiran Bukti')));
+    }
   }
 }
