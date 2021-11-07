@@ -3,8 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_lapang/akun_screen.dart';
+import 'package:project_lapang/lihat_laporan_screen.dart';
 import 'package:project_lapang/lapor_screen.dart';
-import 'package:project_lapang/riwayat_laporan.dart';
+import 'package:project_lapang/list_laporan.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -54,7 +55,7 @@ class _HomeState extends State<Home> {
                 }
 
                 //Kembalikan widget ListView untuk di build
-                return ListView(shrinkWrap: true, children: [
+                return ListView(children: [
                   Container(
                     margin: const EdgeInsets.symmetric(
                         vertical: 20.0, horizontal: 20.0),
@@ -76,7 +77,8 @@ class _HomeState extends State<Home> {
                     child: StreamBuilder<QuerySnapshot>(
                         //Buat snapshot untuk stream.
                         stream: laporan
-                            .orderBy('tanggal_laporan', descending: true).where('uid', isEqualTo: uid)
+                            .orderBy('tanggal_laporan', descending: true)
+                            .where('uid', isEqualTo: uid)
                             .snapshots(),
                         //Build context dan snapshot yang telah dibuat dari stream
                         builder: (_, snapshot) {
@@ -85,11 +87,11 @@ class _HomeState extends State<Home> {
                             if (snapshot.hasData) {
                               return Column(
                                   children: snapshot.data!.docs
-                                      .map((e) => RiwayatLaporan(
-                                            e['judul_laporan'],
-                                            e['laporan'],
-                                            e['uid'],
-                                            e['tanggal_laporan'],
+                                      .map((e) => riwayatLaporan(
+                                            judul: e['judul_laporan'],
+                                            isiLaporan: e['laporan'],
+                                            timeLaporan:  e['tanggal_laporan'],
+                                            laporanId:  e['laporanId'],
                                           ))
                                       .toList());
                             } else {
@@ -116,13 +118,13 @@ class _HomeState extends State<Home> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           iconAtas(Icons.description_outlined, Colors.white, 50,
-              'Lihat Laporan', AkunScreen(domisili, nama, nik, nomorHp, uid)),
+              'Lihat Laporan', LihatLaporanScreen(uid)),
           iconAtas(Icons.add_comment_outlined, Colors.white, 50,
               'Tambah Aduan Baru', LaporScreen(uid)),
           iconAtas(Icons.add_reaction_outlined, Colors.white, 50,
               'Tambah Petugas', LaporScreen(uid)),
           iconAtas(Icons.account_circle_outlined, Colors.white, 50, 'Akun',
-              LaporScreen(uid)),
+              AkunScreen(domisili, nama, nik, nomorHp, uid)),
         ],
       );
     }
