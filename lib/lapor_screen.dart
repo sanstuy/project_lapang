@@ -175,6 +175,7 @@ class _LaporScreenState extends State<LaporScreen> {
         'uid': widget.uid,
         'image': fileName,
         'laporanId': docRefence.id,
+        'sudahDiBalas': false,
       }).then((value) => uploadImageToFirebase(context).then((value) {
             return ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('Laporan Berhasil diadukan.'),
