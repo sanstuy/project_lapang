@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:project_lapang/akun_screen.dart';
 import 'package:project_lapang/lihat_laporan_screen.dart';
 import 'package:project_lapang/lapor_screen.dart';
-import 'package:project_lapang/list_laporan.dart';
+import 'package:project_lapang/riwayat_laporan_screen.dart';
+import 'package:project_lapang/tambah_petugas_screen.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -90,8 +91,8 @@ class _HomeState extends State<Home> {
                                       .map((e) => riwayatLaporan(
                                             judul: e['judul_laporan'],
                                             isiLaporan: e['laporan'],
-                                            timeLaporan:  e['tanggal_laporan'],
-                                            laporanId:  e['laporanId'],
+                                            timeLaporan: e['tanggal_laporan'],
+                                            laporanId: e['laporanId'],
                                           ))
                                       .toList());
                             } else {
@@ -118,11 +119,13 @@ class _HomeState extends State<Home> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           iconAtas(Icons.description_outlined, Colors.white, 50,
-              'Lihat Laporan', LihatLaporanScreen(uid)),
+              'Lihat Laporan', LihatLaporanScreen(uid, false)),
+          iconAtas(Icons.fact_check_outlined, Colors.white, 50,
+              'Laporan Telah Dibalas', LihatLaporanScreen(uid, true)),
           iconAtas(Icons.add_comment_outlined, Colors.white, 50,
               'Tambah Aduan Baru', LaporScreen(uid)),
           iconAtas(Icons.add_reaction_outlined, Colors.white, 50,
-              'Tambah Petugas', LaporScreen(uid)),
+              'Tambah Petugas', const TambahPetugasScreen()),
           iconAtas(Icons.account_circle_outlined, Colors.white, 50, 'Akun',
               AkunScreen(domisili, nama, nik, nomorHp, uid)),
         ],
@@ -163,5 +166,53 @@ class _HomeState extends State<Home> {
 
   Future<DocumentSnapshot> getUser() async {
     return await user.doc(uid).get();
+  }
+
+  Widget riwayatLaporan(
+      {String? judul,
+      String? isiLaporan,
+      Timestamp? timeLaporan,
+      String? laporanId}) {
+    DateTime dateLaporan = timeLaporan!.toDate();
+    return Builder(builder: (context) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.blue)),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => RiwayatLaporanScreen(laporanId!)),
+            );
+          },
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(judul!,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    )),
+                Text(isiLaporan!,
+                    style: const TextStyle(
+                      fontSize: 15,
+                    )),
+                Text(
+                  dateLaporan.toString(),
+                  style: const TextStyle(fontSize: 15),
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    });
   }
 }
