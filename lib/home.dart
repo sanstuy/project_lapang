@@ -85,7 +85,16 @@ class _HomeState extends State<Home> {
                         builder: (_, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.active) {
-                            if (snapshot.hasData) {
+                            if (snapshot.data == null ||
+                                snapshot.data!.docs.isEmpty) {
+                              return Column(children: [
+                                const Text(
+                                  'Aduan kamu masih kosong',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                Image.asset('images/empty.png')
+                              ]);
+                            } else {
                               return Column(
                                   children: snapshot.data!.docs
                                       .map((e) => riwayatLaporan(
@@ -95,8 +104,6 @@ class _HomeState extends State<Home> {
                                             laporanId: e['laporanId'],
                                           ))
                                       .toList());
-                            } else {
-                              return const Text('NO DATA');
                             }
                           } else {
                             return const Text('Loading');
@@ -114,21 +121,30 @@ class _HomeState extends State<Home> {
   //Widget yang digunakan untuk membuild widget kotak atas dicek berdasarkan petugas atau bukan.
   Widget atas() {
     if (isPetugas) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          iconAtas(Icons.description_outlined, Colors.white, 50,
-              'Lihat Laporan', LihatLaporanScreen(uid, false)),
-          iconAtas(Icons.fact_check_outlined, Colors.white, 50,
-              'Laporan Telah Dibalas', LihatLaporanScreen(uid, true)),
-          iconAtas(Icons.add_comment_outlined, Colors.white, 50,
-              'Tambah Aduan Baru', LaporScreen(uid)),
-          iconAtas(Icons.add_reaction_outlined, Colors.white, 50,
-              'Tambah Petugas', const TambahPetugasScreen()),
-          iconAtas(Icons.account_circle_outlined, Colors.white, 50, 'Akun',
-              AkunScreen(domisili, nama, nik, nomorHp, uid)),
-        ],
+      return SizedBox(
+        width: 300,
+        height: 100,
+        child: ListView(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  iconAtas(Icons.description_outlined, Colors.white, 40,
+                      'Lihat Laporan', LihatLaporanScreen(uid, false)),
+                  iconAtas(Icons.fact_check_outlined, Colors.white, 40,
+                      'Laporan Telah Dibalas', LihatLaporanScreen(uid, true)),
+                  iconAtas(Icons.add_comment_outlined, Colors.white, 40,
+                      'Tambah Aduan Baru', LaporScreen(uid)),
+                  iconAtas(Icons.add_reaction_outlined, Colors.white, 40,
+                      'Tambah Petugas', const TambahPetugasScreen()),
+                  iconAtas(Icons.account_circle_outlined, Colors.white, 40,
+                      'Akun', AkunScreen(domisili, nama, nik, nomorHp, uid)),
+                ],
+              ),
+            ]),
       );
     }
 
@@ -136,10 +152,10 @@ class _HomeState extends State<Home> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        iconAtas(Icons.add_comment_outlined, Colors.white, 50,
+        iconAtas(Icons.add_comment_outlined, Colors.white, 40,
             'Tambah Aduan Baru', LaporScreen(uid)),
-        iconAtas(Icons.add_comment_outlined, Colors.white, 50, 'Akun',
-            LaporScreen(uid)),
+        iconAtas(Icons.account_circle_outlined, Colors.white, 50, 'Akun',
+            AkunScreen(domisili, nama, nik, nomorHp, uid)),
       ],
     );
   }
