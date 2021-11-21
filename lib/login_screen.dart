@@ -54,6 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const Expanded(
               flex: 1,
@@ -71,7 +72,8 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: MediaQuery.of(context).size.width * 0.1),
                     child: TextField(
                       decoration: const InputDecoration(
                         enabledBorder: OutlineInputBorder(
@@ -95,17 +97,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        login();
-                      });
-                    },
-                    child: const Text("Login"),
-                    style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                        maximumSize: const Size(double.infinity, 30.0),
-                        minimumSize: const Size(330, 30.0)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: MediaQuery.of(context).size.width * 0.1),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          login();
+                        });
+                      },
+                      child: const Text("Login"),
+                      style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                          maximumSize: const Size(double.infinity, 30.0),
+                          minimumSize: const Size(330, 30.0)),
+                    ),
                   ),
                   const Padding(
                     padding:
