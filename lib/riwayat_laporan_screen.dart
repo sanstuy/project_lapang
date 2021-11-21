@@ -124,7 +124,16 @@ class _RiwayatLaporanScreenState extends State<RiwayatLaporanScreen> {
         box(context, isiDataAduan()),
         isDibalas
             ? box(context, getDataBalasan())
-            : const Text('Tidak ada balasan')
+            : box(
+                context,
+                Column(
+                  children: [
+                    const Text('Petugas kami akan segera membalas aduan kamu',
+                        style: TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center),
+                    Image.asset('images/mail.png'),
+                  ],
+                )),
       ],
     );
   }
