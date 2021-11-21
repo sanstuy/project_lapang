@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:project_lapang/download_pdf.dart';
 import 'balas_screen.dart';
 
 class LihatLaporanScreen extends StatefulWidget {
@@ -19,11 +19,13 @@ class _LihatLaporanScreenState extends State<LihatLaporanScreen> {
   final CollectionReference laporan =
       FirebaseFirestore.instance.collection('laporan');
   late String title;
+  DateTime? firstSelectedDate;
+  DateTime? secondSelectedDate;
 
   @override
   void initState() {
     if (widget.isLihatLaporanTelahDiBalas) {
-      title = 'Laporan Warga Telah Dibalas';
+      title = 'Telah Dibalas';
     } else {
       title = 'Laporan Warga';
     }
@@ -37,7 +39,16 @@ class _LihatLaporanScreenState extends State<LihatLaporanScreen> {
 
   returnLihatLaporanScreen(context) {
     return Scaffold(
-        appBar: AppBar(title: Text(title)),
+        appBar: AppBar(
+            title: Row(children: [
+          Expanded(child: Text(title)),
+          if (widget.isLihatLaporanTelahDiBalas)
+            IconButton(
+                onPressed: () {
+                  selectDate();
+                },
+                icon: const Icon(Icons.download_for_offline_outlined))
+        ])),
         body: ListView(children: [
           StreamBuilder<QuerySnapshot>(
             stream: laporan
@@ -49,7 +60,19 @@ class _LihatLaporanScreenState extends State<LihatLaporanScreen> {
               if (snapshot.connectionState == ConnectionState.active) {
                 if (snapshot.hasData) {
                   if (snapshot.data!.docs.isEmpty) {
-                    return const Center(child: Text('Tidak ada data Laporan'));
+                    return Container(
+                      margin: const EdgeInsets.only(top: 30),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Belum ada laporan dari masyarakat',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          Image.asset('images/empty.png'),
+                        ],
+                      ),
+                    );
                   }
                   return widget.isLihatLaporanTelahDiBalas
                       ? Column(
@@ -209,5 +232,40 @@ class _LihatLaporanScreenState extends State<LihatLaporanScreen> {
                 )),
           );
         });
+  }
+
+  selectDate() async {
+    showDatePicker(
+      context: context,
+      initialDate: firstSelectedDate ?? DateTime.now(),
+      firstDate: DateTime(2019, 1),
+      lastDate: DateTime(2021, 12),
+    ).then((firstSelectedDate) {
+      //do whatever you want
+      if (firstSelectedDate != null) {
+        debugPrint('tanggal awal: ${firstSelectedDate.toString()}');
+        showDatePicker(
+          context: context,
+          initialDate: secondSelectedDate ?? DateTime.now(),
+          firstDate: DateTime(2019, 1),
+          lastDate: DateTime(2021, 12),
+        ).then((secondSelectedDate) {
+          //do whatever you want
+          if (secondSelectedDate != null) {
+            debugPrint('tanggal akhir: ${secondSelectedDate.toString()}');
+            laporan
+                .where('tanggal_laporan',
+                    isGreaterThanOrEqualTo: firstSelectedDate)
+                .where('tanggal_laporan',
+                    isLessThanOrEqualTo: secondSelectedDate)
+                .where('sudahDiBalas', isEqualTo: true)
+                .get()
+                .then((value) =>
+                    GetPdf(value.docs, firstSelectedDate, secondSelectedDate)
+                        .getPdf());
+          }
+        });
+      }
+    });
   }
 }
