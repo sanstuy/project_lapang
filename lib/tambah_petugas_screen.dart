@@ -48,7 +48,7 @@ class _TambahPetugasScreenState extends State<TambahPetugasScreen> {
           ),
           StreamBuilder<QuerySnapshot>(
               stream: users
-                  .orderBy('kelas', descending: false).orderBy('nama', descending: false)
+                  .orderBy('nama')
                   .startAt([_searchNama.text.toUpperCase()]).endAt(
                       [_searchNama.text.toLowerCase() + '\uf8ff']).snapshots(),
               builder: (context, snapshot) {
@@ -215,6 +215,7 @@ class _TambahPetugasScreenState extends State<TambahPetugasScreen> {
     if (isPetugas == true) {
       kelas = 'umum';
     }
-    var update = docUser.update({'kelas': kelas});
+
+    docUser.update({'kelas': kelas});
   }
 }
