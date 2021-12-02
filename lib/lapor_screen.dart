@@ -54,7 +54,7 @@ class _LaporScreenState extends State<LaporScreen> {
                     ),
                     validator: (String? value) {
                       if (value!.isEmpty) {
-                        return 'NIK Tidak boleh kosong';
+                        return 'Judul Aduan Tidak boleh kosong';
                       }
                       return null;
                     },
