@@ -211,6 +211,8 @@ class _BalasScreenState extends State<BalasScreen> {
                     labelText: 'Balas Aduan',
                     labelStyle: TextStyle(fontSize: 16.0),
                   ),
+                  minLines: 1,
+                  maxLines: 3,
                   controller: _balasanController,
                   validator: (String? value) {
                     if (value!.isEmpty) {
@@ -222,15 +224,23 @@ class _BalasScreenState extends State<BalasScreen> {
           ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Processing Data')));
                   setState(() {
                     addBalasan(_balasanController, widget.laporanId,
                         widget.uidPetugas);
                   });
                 }
               },
-              child: const Text('Balas'))
+              child: const Text('Balas')),
+          ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  alertDialog(widget.judul, widget.laporanId);
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red,
+              ),
+              child: const Text('Hapus'))
         ],
       ),
     );
@@ -370,6 +380,33 @@ class _BalasScreenState extends State<BalasScreen> {
                 const SnackBar(content: Text("Aduan telah dibalas")))));
     _balasanController.text = '';
     Navigator.pop(context);
+  }
+
+  hapusBalasan(laporanId) async {
+    await FirebaseFirestore.instance
+        .runTransaction((myTransaction) async => myTransaction.delete(
+            FirebaseFirestore.instance.collection('laporan').doc(laporanId)))
+        .then((value) => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Aduan berhasil dihapus"))));
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
+
+  Future<dynamic> alertDialog(String judul, String laporanId) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: const Center(child: Text('Konfirmasi Hapus Aduan')),
+              content: Text('Yakin ingin menghapus aduan $judul'),
+              actions: [
+                TextButton(
+                    onPressed: () => hapusBalasan(laporanId),
+                    child: const Text('Ya')),
+                TextButton(
+                    onPressed: () => Navigator.pop(context, "Tidak"),
+                    child: const Text('Tidak')),
+              ],
+            ));
   }
 
   Future<String> getPic() async {
