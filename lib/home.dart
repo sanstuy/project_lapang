@@ -7,6 +7,7 @@ import 'package:project_lapang/lihat_laporan_screen.dart';
 import 'package:project_lapang/lapor_screen.dart';
 import 'package:project_lapang/riwayat_laporan_screen.dart';
 import 'package:project_lapang/tambah_petugas_screen.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -29,6 +30,12 @@ class _HomeState extends State<Home> {
 
   var isPetugas = false;
 
+  final List<String> imageList = [
+    'https://firebasestorage.googleapis.com/v0/b/project-lapang-991ef.appspot.com/o/265879217_6908575965820981_510198756194539954_n.jpg?alt=media&token=39d73c4e-4165-4009-b0d3-87000720e574',
+    'https://firebasestorage.googleapis.com/v0/b/project-lapang-991ef.appspot.com/o/266449566_6908575752487669_310581850314720731_n.jpg?alt=media&token=78e63642-a1be-4c52-a9e6-e9f2edc1f66b',
+    'https://firebasestorage.googleapis.com/v0/b/project-lapang-991ef.appspot.com/o/266707885_6908574989154412_2030751570377872136_n.jpg?alt=media&token=c57d0b60-a38f-41a9-9aa8-b7dca47c7d2a',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +45,10 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Home')),
+        appBar: AppBar(
+          title: const Text('Pengaduan Desa Leuwiliang'),
+          centerTitle: true,
+        ),
         body: FutureBuilder(
             future: getUser(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -57,6 +67,40 @@ class _HomeState extends State<Home> {
 
                 //Kembalikan widget ListView untuk di build
                 return ListView(children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 20),
+                    // padding: const EdgeInsets.all(10),
+                    child: Center(
+                      child: CarouselSlider(
+                        options: CarouselOptions(
+                          enlargeCenterPage: true,
+                          enableInfiniteScroll: true,
+                          autoPlay: true,
+                          height: MediaQuery.of(context).size.height * 0.2,
+                        ),
+                        items: imageList
+                            .map((e) => ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: <Widget>[
+                                      Image.network(
+                                        e,
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.2,
+                                        fit: BoxFit.cover,
+                                      )
+                                    ],
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+
                   Container(
                     margin: const EdgeInsets.symmetric(
                         vertical: 20.0, horizontal: 20.0),
@@ -132,16 +176,22 @@ class _HomeState extends State<Home> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  iconAtas(Icons.description_outlined, Colors.white, 40,
+                  iconAtas(Icons.description_outlined, Colors.white, 50,
                       'Lihat Laporan', LihatLaporanScreen(uid, false)),
-                  iconAtas(Icons.fact_check_outlined, Colors.white, 40,
+                  iconAtas(Icons.fact_check_outlined, Colors.white, 50,
                       'Laporan Telah Dibalas', LihatLaporanScreen(uid, true)),
-                  iconAtas(Icons.add_comment_outlined, Colors.white, 40,
+                  iconAtas(Icons.add_comment_outlined, Colors.white, 50,
                       'Tambah Aduan Baru', LaporScreen(uid)),
-                  iconAtas(Icons.add_reaction_outlined, Colors.white, 40,
+                  iconAtas(Icons.add_reaction_outlined, Colors.white, 50,
                       'Tambah Petugas', const TambahPetugasScreen()),
-                  iconAtas(Icons.account_circle_outlined, Colors.white, 40,
+                  iconAtas(Icons.account_circle_outlined, Colors.white, 50,
                       'Akun', AkunScreen(domisili, nama, nik, nomorHp, uid)),
+                  iconAtas(Icons.description_outlined, Colors.white, 50,
+                      'Lihat Laporan', LihatLaporanScreen(uid, false)),
+                  iconAtas(Icons.description_outlined, Colors.white, 50,
+                      'Lihat Laporan', LihatLaporanScreen(uid, false)),
+                  iconAtas(Icons.description_outlined, Colors.white, 50,
+                      'Lihat Laporan', LihatLaporanScreen(uid, false)),
                 ],
               ),
             ]),

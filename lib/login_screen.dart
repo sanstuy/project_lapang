@@ -67,6 +67,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     fontSize: 30),
               )),
             ),
+            Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
+              child: Image.asset(
+                'images/Logo.png',
+                height: MediaQuery.of(context).size.height * 0.2,
+              ),
+            ),
             Expanded(
               flex: 2,
               child: Column(

@@ -238,8 +238,8 @@ class _LihatLaporanScreenState extends State<LihatLaporanScreen> {
     showDatePicker(
       context: context,
       initialDate: firstSelectedDate ?? DateTime.now(),
-      firstDate: DateTime(2019, 1),
-      lastDate: DateTime(2021, 12),
+      firstDate: DateTime(2000, 1),
+      lastDate: DateTime(2040, 12),
     ).then((firstSelectedDate) {
       //do whatever you want
       if (firstSelectedDate != null) {
@@ -247,8 +247,8 @@ class _LihatLaporanScreenState extends State<LihatLaporanScreen> {
         showDatePicker(
           context: context,
           initialDate: secondSelectedDate ?? DateTime.now(),
-          firstDate: DateTime(2019, 1),
-          lastDate: DateTime(2021, 12),
+          firstDate: DateTime(2000, 1),
+          lastDate: DateTime(2040, 12),
         ).then((secondSelectedDate) {
           //do whatever you want
           if (secondSelectedDate != null) {
